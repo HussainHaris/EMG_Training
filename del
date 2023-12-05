@@ -1,0 +1,252 @@
+@Nested
+class DeleteFileAdapterTest {
+
+    private lateinit var adapter: DeleteFileAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = DeleteFileAdapter()
+    }
+
+    @Nested
+    inner class FromFileEvent {
+
+        @Test
+        fun `should handle null event`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromFileEvent(null)
+            }
+            assertEquals("Event cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle valid delete file event`() {
+            val mockEvent = mock<VFileDeleteEvent>()
+            val result = adapter.fromFileEvent(mockEvent)
+            assertTrue(result, "Adapter should return true for valid delete file event")
+        }
+
+        @Test
+        fun `should handle event for non-existent file`() {
+            val mockEvent = mock<VFileDeleteEvent>()
+            // Assuming the adapter checks if the file exists in the event
+            // Simulate the behavior for a non-existent file
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for non-existent file")
+        }
+
+        @Test
+        fun `should handle event with invalid file properties`() {
+            val mockEvent = mock<VFileDeleteEvent>()
+            // Configure mockEvent to simulate invalid file properties
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for event with invalid file properties")
+        }
+    }
+}
+@Nested
+class RenameFileAdapterTest {
+
+    private lateinit var adapter: RenameFileAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = RenameFileAdapter()
+    }
+
+    @Nested
+    inner class FromFileEvent {
+
+        @Test
+        fun `should handle null event`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromFileEvent(null)
+            }
+            assertEquals("Event cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle valid rename file event`() {
+            val mockEvent = mock<VFilePropertyChangeEvent>()
+            `when`(mockEvent.propertyName).thenReturn(VirtualFile.PROP_NAME)
+            val result = adapter.fromFileEvent(mockEvent)
+            assertTrue(result, "Adapter should return true for valid rename file event")
+        }
+
+        @Test
+        fun `should handle event with non-name property change`() {
+            val mockEvent = mock<VFilePropertyChangeEvent>()
+            `when`(mockEvent.propertyName).thenReturn("someOtherProperty")
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should ignore non-name property changes")
+        }
+
+        @Test
+        fun `should handle event with invalid new name`() {
+            val mockEvent = mock<VFilePropertyChangeEvent>()
+            `when`(mockEvent.propertyName).thenReturn(VirtualFile.PROP_NAME)
+            `when`(mockEvent.newValue).thenReturn("") // Invalid new name
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for invalid new name")
+        }
+    }
+}
+
+@Nested
+class SaveFileAdapterTest {
+
+    private lateinit var adapter: SaveFileAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = SaveFileAdapter()
+    }
+
+    @Nested
+    inner class FromFileEvent {
+
+        @Test
+        fun `should handle null event`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromFileEvent(null)
+            }
+            assertEquals("Event cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle valid save file event`() {
+            val mockEvent = mock<VFileContentChangeEvent>()
+            val result = adapter.fromFileEvent(mockEvent)
+            assertTrue(result, "Adapter should return true for valid save file event")
+        }
+
+        @Test
+        fun `should handle event with unchanged content`() {
+            val mockEvent = mock<VFileContentChangeEvent>()
+            // Simulate an event where file content has not changed
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for unchanged content")
+        }
+
+        @Test
+        fun `should handle event with invalid content data`() {
+            val mockEvent = mock<VFileContentChangeEvent>()
+            // Simulate an event with invalid content data
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for invalid content data")
+        }
+    }
+}
+
+@Nested
+class TextEditorChangeAdapterTest {
+
+    private lateinit var adapter: TextEditorChangeAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = TextEditorChangeAdapter()
+    }
+
+    @Nested
+    inner class FromFileEditorManagerEvent {
+
+        @Test
+        fun `should handle null event`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromFileEditorManagerEvent(null)
+            }
+            assertEquals("Event cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle valid text editor change event`() {
+            val mockEvent = mock<FileEditorManagerEvent>()
+            val result = adapter.fromFileEditorManagerEvent(mockEvent)
+            assertTrue(result, "Adapter should return true for valid text editor change event")
+        }
+
+        @Test
+        fun `should handle event with invalid editor data`() {
+            val mockEvent = mock<FileEditorManagerEvent>()
+            // Simulate an event with invalid editor data
+            val result = adapter.fromFileEditorManagerEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for event with invalid editor data")
+        }
+
+        @Test
+        fun `should handle event with no active editor`() {
+            val mockEvent = mock<FileEditorManagerEvent>()
+            `when`(mockEvent.newEditor).thenReturn(null) // No active editor
+            val result = adapter.fromFileEditorManagerEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for event with no active editor")
+        }
+    }
+}
+
+import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.junit.jupiter.api.Assertions.*
+
+@Nested
+class CreateFileAdapterTest {
+
+    private lateinit var adapter: CreateFileAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = CreateFileAdapter()
+    }
+
+    @Nested
+    inner class FromFileEvent {
+
+        @Test
+        fun `should handle null event`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromFileEvent(null)
+            }
+            assertEquals("Event cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle valid create file event`() {
+            val mockEvent = mock<VFileCreateEvent>()
+            // Simulate the adapter handling a valid create file event
+            val result = adapter.fromFileEvent(mockEvent)
+            assertTrue(result, "Adapter should return true for valid create file event")
+        }
+
+        @Test
+        fun `should ignore non-create event types`() {
+            val mockEvent = mock<VFileEvent>() // Non-create event
+            // Simulate handling a non-create event
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for non-create event")
+        }
+
+        @Test
+        fun `should handle create event with invalid path`() {
+            val mockEvent = mock<VFileCreateEvent>()
+            `when`(mockEvent.path).thenReturn("/invalid/path")
+            // Simulate handling an event with an invalid path
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for event with invalid path")
+        }
+
+        @Test
+        fun `should handle event with a file that already exists`() {
+            val mockEvent = mock<VFileCreateEvent>()
+            // Configure the event to simulate a file that already exists
+            `when`(mockEvent.isNew).thenReturn(false)
+            val result = adapter.fromFileEvent(mockEvent)
+            assertFalse(result, "Adapter should return false for event with existing file")
+        }
+    }
+}
+

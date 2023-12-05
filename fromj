@@ -1,0 +1,64 @@
+import com.google.gson.JsonObject
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
+import org.junit.jupiter.api.Assertions.*
+
+@Nested
+class CreateProviderAdapterTest {
+
+    private lateinit var adapter: CreateProviderAdapter
+
+    @BeforeEach
+    fun setUp() {
+        adapter = CreateProviderAdapter()
+    }
+
+    @Nested
+    inner class FromJson {
+
+        @Test
+        fun `should handle valid json object`() {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("key", "value")
+
+            assertDoesNotThrow {
+                adapter.fromJson(jsonObject)
+            }
+            // Additional assertions based on expected behavior
+        }
+
+        @Test
+        fun `should handle null json object`() {
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromJson(null)
+            }
+            assertEquals("JSON object cannot be null", exception.message)
+        }
+
+        @Test
+        fun `should handle json object with missing required fields`() {
+            val jsonObject = JsonObject()
+            // JsonObject missing required fields
+
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromJson(jsonObject)
+            }
+            assertEquals("Required fields are missing", exception.message)
+        }
+
+        @Test
+        fun `should handle json object with invalid data types`() {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("key", 42) // Invalid data type for 'key'
+
+            val exception = assertThrows<IllegalArgumentException> {
+                adapter.fromJson(jsonObject)
+            }
+            assertEquals("Invalid data type for key", exception.message)
+        }
+
+        // Additional specific test cases based on the adapter's logic and potential edge cases
+    }
+}
